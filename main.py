@@ -1,21 +1,19 @@
-import os
 from flask import Flask, jsonify
-from extensions import db
+from extensions import db, migrate
+from config import Config
 
 def create_app():
     app = Flask(__name__)
+    app.config.from_object(Config)
 
-    # Database config (uses env var if present, else sqlite file)
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", "sqlite:///instance/travel_journal.db")
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
-    # Init DB
+    # Init DB + Migrate
     db.init_app(app)
+    migrate.init_app(app, db)
 
     # Import models so tables are registered
     from models import User, Trip, UserTrip, Entry, Photo  # noqa: F401
 
-    # Import and register blueprints from routes/
+    # Register blueprints
     from routes.users_routes import bp as users_bp
     from routes.trips_routes import bp as trips_bp
     from routes.entries_routes import bp as entries_bp
@@ -30,16 +28,13 @@ def create_app():
     def index():
         return jsonify({"message": "Travel Journal API (Users • Trips • Entries • Photos)"}), 200
 
-    # Create tables on first run (dev-friendly)
-    with app.app_context():
-        db.create_all()
+    # Debug: print database path
+    print("Using database:", app.config["SQLALCHEMY_DATABASE_URI"])
 
     return app
-
 
 # Create the app instance
 app = create_app()
 
 if __name__ == "__main__":
-    # Debug mode ON for development; change port if needed
     app.run(debug=True, port=5000)
