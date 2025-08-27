@@ -6,7 +6,6 @@ services:
     ports:
       - "5000:5000"
     environment:
-      # In Render, you'll replace this with the DATABASE_URL they provide
       - DATABASE_URL=postgresql://postgres:password@db:5432/travel
     depends_on:
       - db

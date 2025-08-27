@@ -63,8 +63,3 @@ def delete_user(user_id):
         return error_response(f"Database error: {e}", 500)
 
     return jsonify({"message": "User deleted"}), 200
-
-
-# Ensure your User model has this to_dict() method:
-# def to_dict(self):
-#     return {"id": self.id, "username": self.username, "email": self.email}
